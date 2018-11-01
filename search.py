@@ -263,8 +263,6 @@ def best_first_graph_search(problem, f):
     a best first search you can examine the f values of the path returned."""
     f = memoize(f, 'f')
     node = Node(problem.initial)
-    if problem.goal_test(node.state):
-        return node
     frontier = PriorityQueue('min', f)
     frontier.append(node)
     explored = set()
@@ -767,8 +765,8 @@ class OnlineDFSAgent:
         self.problem = problem
         self.s = None
         self.a = None
-        self.untried = defaultdict(list)
-        self.unbacktracked = defaultdict(list)
+        self.untried = dict()
+        self.unbacktracked = dict()
         self.result = {}
 
     def __call__(self, percept):
@@ -787,13 +785,13 @@ class OnlineDFSAgent:
                     self.a = None
                 else:
                     # else a <- an action b such that result[s', b] = POP(unbacktracked[s'])
-                    unbacktracked_pop = self.unbacktracked[s1].pop(0)
+                    unbacktracked_pop = self.unbacktracked.pop(s1)
                     for (s, b) in self.result.keys():
                         if self.result[(s, b)] == unbacktracked_pop:
                             self.a = b
                             break
             else:
-                self.a = self.untried[s1].pop(0)
+                self.a = self.untried.pop(s1)
         self.s = s1
         return self.a
 
@@ -1120,7 +1118,7 @@ Each state is represented as
 7 - CCL     Clean                         Clean                       Left
 8 - CCR     Clean                         Clean                       Right
 """
-vacumm_world = Graph(dict(
+vacuum_world = Graph(dict(
     State_1=dict(Suck=['State_7', 'State_5'], Right=['State_2']),
     State_2=dict(Suck=['State_8', 'State_4'], Left=['State_2']),
     State_3=dict(Suck=['State_7'], Right=['State_4']),
